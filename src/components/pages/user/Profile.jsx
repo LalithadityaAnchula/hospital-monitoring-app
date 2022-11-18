@@ -1,7 +1,7 @@
 import { MdOutlineMail, MdDriveFileRenameOutline } from "react-icons/md";
 import { TbDeviceMobile } from "react-icons/tb";
 import { AiOutlineIdcard } from "react-icons/ai";
-import { FcOk, FcApproval, FcApprove, FcBadDecision } from "react-icons/fc";
+import { FcOk } from "react-icons/fc";
 import { FaExclamation } from "react-icons/fa";
 import UserContext from "../../../context/users/UserContext";
 import AlertContext from "../../../context/alert/AlertContext";
@@ -11,13 +11,9 @@ import { getUser, updateUser } from "../../../context/users/UserAction";
 import Loader from "../../shared/Loader";
 import Alert from "../../shared/Alert";
 import FloatLeft from "../../shared/FloatLeft";
-import FloatRight from "../../shared/FloatRight";
-import FloatDown from "../../shared/FloatDown";
-import SlotCard from "../../shared/SlotCard";
-import DoseDetails from "../../shared/DoseDetails";
 
 export default function Profile() {
-  const { isLoading, dispatch, user } = useContext(UserContext);
+  const { isLoading, dispatch } = useContext(UserContext);
   const { setAlert } = useContext(AlertContext);
   let prevUserDetails = useRef({
     firstName: "",
@@ -83,232 +79,182 @@ export default function Profile() {
   return (
     <>
       <div className="fix-height-loader">{isLoading && <Loader />}</div>
-      <div className="columns is-desktop">
-        <div className="column section">
-          <FloatRight>
-            <div className="is-flex is-justify-content-center block">
-              <FloatDown>
-                {user?.firstDose && user?.secondDose ? (
-                  <button className="button is-large is-hovered">
-                    <span>Vaccinated</span>
-                    <span className="icon is-medium">
-                      <FcApproval />
-                    </span>
-                  </button>
-                ) : user?.firstDose ? (
-                  <button className="button is-large is-hovered">
-                    <span>Partially vaccinated</span>
-                    <span className="icon is-medium">
-                      <FcApprove />
-                    </span>
-                  </button>
-                ) : (
-                  <button className="button is-large is-hovered">
-                    <span>Not vaccinated</span>
-                    <span className="icon is-medium">
-                      <FcBadDecision />
-                    </span>
-                  </button>
-                )}
-              </FloatDown>
-            </div>
-            {user.activeSlot !== undefined && (
-              <div className="my-4">
-                <h1 className="title is-4 block">Booked Slots</h1>
-                <SlotCard slot={user.activeSlot} inProfile={true} />
-              </div>
-            )}
-            <div className="columns is-desktop">
-              <div className="column">
-                {user.firstDose !== undefined && (
-                  <DoseDetails doseDetails={user?.firstDose} />
-                )}
-              </div>
-              <div className="column">
-                {user.secondDose !== undefined && (
-                  <DoseDetails doseDetails={user?.secondDose} />
-                )}
-              </div>
-            </div>
-          </FloatRight>
-        </div>
-        <form onSubmit={handleSubmit} className="section column">
-          <FloatLeft>
-            <Alert />
-            <div className="columns is-multiline">
-              <div className="column is-half">
-                <div className="field">
-                  <label className="label" htmlFor="firstName">
-                    First Name
-                  </label>
-                  <div className="control has-icons-left has-icons-right">
-                    <input
-                      type="text"
-                      className="input is-medium"
-                      value={currentUser.firstName}
-                      onChange={(e) => {
-                        setCurrentUser({
-                          ...currentUser,
-                          firstName: e.target.value,
-                        });
-                      }}
-                    />
-                    <span className="icon is-small is-left">
-                      <MdDriveFileRenameOutline />
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="column is-half">
-                <div className="field">
-                  <label className="label" htmlFor="lastName">
-                    Last Name
-                  </label>
-                  <div className="control has-icons-left has-icons-right">
-                    <input
-                      type="text"
-                      className="input is-medium"
-                      value={currentUser.lastName}
-                      onChange={(e) => {
-                        setCurrentUser({
-                          ...currentUser,
-                          lastName: e.target.value,
-                        });
-                      }}
-                    />
-                    <span className="icon is-small is-left">
-                      <MdDriveFileRenameOutline />
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="column is-half">
-                <div className="field">
-                  <label className="label" htmlFor="email">
-                    Email
-                  </label>
-                  <div className="control has-icons-left has-icons-right">
-                    <input
-                      type="email"
-                      className="input is-medium"
-                      value={currentUser.email}
-                      onChange={(e) => {
-                        setCurrentUser({
-                          ...currentUser,
-                          email: e.target.value,
-                        });
-                      }}
-                    />
-                    <span className="icon is-small is-left">
-                      <MdOutlineMail />
-                    </span>
-                    <span className="icon is-small is-right">
-                      {isEmailValid ? (
-                        <FcOk />
-                      ) : (
-                        currentUser.email !== "" && (
-                          <FaExclamation size="12" color="red" />
-                        )
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="column is-half">
-                <div className="field">
-                  <label className="label" htmlFor="mobile">
-                    Mobile
-                  </label>
-                  <div className="control has-icons-left has-icons-right">
-                    <input
-                      type="text"
-                      className="input is-medium"
-                      value={currentUser.phone}
-                      onChange={(e) => {
-                        setCurrentUser({
-                          ...currentUser,
-                          phone: e.target.value,
-                        });
-                      }}
-                    />
-                    <span className="icon is-small is-left">
-                      <TbDeviceMobile />
-                    </span>
-                    <span className="icon is-small is-right">
-                      {isValidMobile ? (
-                        <FcOk />
-                      ) : (
-                        currentUser.phone !== "" && (
-                          <FaExclamation size="12" color="red" />
-                        )
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="column is-half">
-                <div className="field">
-                  <label className="label" htmlFor="aadhar">
-                    Aadhar number
-                  </label>
-                  <div className="control has-icons-left has-icons-right">
-                    <input
-                      type="text"
-                      className="input is-medium"
-                      value={currentUser.aadhar}
-                      onChange={(e) => {
-                        setCurrentUser({
-                          ...currentUser,
-                          aadhar: e.target.value,
-                        });
-                      }}
-                    />
-                    <span className="icon is-small is-left">
-                      <AiOutlineIdcard />
-                    </span>
-                    <span className="icon is-small is-right">
-                      {isValidAadhar ? (
-                        <FcOk />
-                      ) : (
-                        currentUser.aadhar !== "" && (
-                          <FaExclamation size="12" color="red" />
-                        )
-                      )}
-                    </span>
-                  </div>
+      <form onSubmit={handleSubmit} className="section">
+        <FloatLeft>
+          <Alert />
+          <div className="columns is-multiline">
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="firstName">
+                  First Name
+                </label>
+                <div className="control has-icons-left has-icons-right">
+                  <input
+                    type="text"
+                    className="input is-medium"
+                    value={currentUser.firstName}
+                    onChange={(e) => {
+                      setCurrentUser({
+                        ...currentUser,
+                        firstName: e.target.value,
+                      });
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <MdDriveFileRenameOutline />
+                  </span>
                 </div>
               </div>
             </div>
-            <div className="level">
-              <div className="level-item">
-                {prevUserDetails.current.firstName === currentUser.firstName &&
-                prevUserDetails.current.lastName === currentUser.lastName &&
-                prevUserDetails.current.email === currentUser.email &&
-                prevUserDetails.current.phone.toString() ===
-                  currentUser.phone.toString() &&
-                prevUserDetails.current.aadhar.toString() ===
-                  currentUser.aadhar.toString() ? (
-                  <button className={"button is-medium is-success"} disabled>
-                    Save Changes
-                  </button>
-                ) : isValidAadhar && isValidMobile && isEmailValid ? (
-                  <button
-                    className={`button is-medium is-success ${
-                      isLoading && "is-loading"
-                    }`}
-                  >
-                    Save Changes
-                  </button>
-                ) : (
-                  <button className={"button is-medium is-success"} disabled>
-                    Save Changes
-                  </button>
-                )}
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="lastName">
+                  Last Name
+                </label>
+                <div className="control has-icons-left has-icons-right">
+                  <input
+                    type="text"
+                    className="input is-medium"
+                    value={currentUser.lastName}
+                    onChange={(e) => {
+                      setCurrentUser({
+                        ...currentUser,
+                        lastName: e.target.value,
+                      });
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <MdDriveFileRenameOutline />
+                  </span>
+                </div>
               </div>
             </div>
-          </FloatLeft>
-        </form>
-      </div>
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="email">
+                  Email
+                </label>
+                <div className="control has-icons-left has-icons-right">
+                  <input
+                    type="email"
+                    className="input is-medium"
+                    value={currentUser.email}
+                    onChange={(e) => {
+                      setCurrentUser({
+                        ...currentUser,
+                        email: e.target.value,
+                      });
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <MdOutlineMail />
+                  </span>
+                  <span className="icon is-small is-right">
+                    {isEmailValid ? (
+                      <FcOk />
+                    ) : (
+                      currentUser.email !== "" && (
+                        <FaExclamation size="12" color="red" />
+                      )
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="mobile">
+                  Mobile
+                </label>
+                <div className="control has-icons-left has-icons-right">
+                  <input
+                    type="text"
+                    className="input is-medium"
+                    value={currentUser.phone}
+                    onChange={(e) => {
+                      setCurrentUser({
+                        ...currentUser,
+                        phone: e.target.value,
+                      });
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <TbDeviceMobile />
+                  </span>
+                  <span className="icon is-small is-right">
+                    {isValidMobile ? (
+                      <FcOk />
+                    ) : (
+                      currentUser.phone !== "" && (
+                        <FaExclamation size="12" color="red" />
+                      )
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="aadhar">
+                  Aadhar number
+                </label>
+                <div className="control has-icons-left has-icons-right">
+                  <input
+                    type="text"
+                    className="input is-medium"
+                    value={currentUser.aadhar}
+                    onChange={(e) => {
+                      setCurrentUser({
+                        ...currentUser,
+                        aadhar: e.target.value,
+                      });
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <AiOutlineIdcard />
+                  </span>
+                  <span className="icon is-small is-right">
+                    {isValidAadhar ? (
+                      <FcOk />
+                    ) : (
+                      currentUser.aadhar !== "" && (
+                        <FaExclamation size="12" color="red" />
+                      )
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="level">
+            <div className="level-item">
+              {prevUserDetails.current.firstName === currentUser.firstName &&
+              prevUserDetails.current.lastName === currentUser.lastName &&
+              prevUserDetails.current.email === currentUser.email &&
+              prevUserDetails.current.phone.toString() ===
+                currentUser.phone.toString() &&
+              prevUserDetails.current.aadhar.toString() ===
+                currentUser.aadhar.toString() ? (
+                <button className={"button is-medium is-success"} disabled>
+                  Save Changes
+                </button>
+              ) : isValidAadhar && isValidMobile && isEmailValid ? (
+                <button
+                  className={`button is-medium is-success ${
+                    isLoading && "is-loading"
+                  }`}
+                >
+                  Save Changes
+                </button>
+              ) : (
+                <button className={"button is-medium is-success"} disabled>
+                  Save Changes
+                </button>
+              )}
+            </div>
+          </div>
+        </FloatLeft>
+      </form>
     </>
   );
 }

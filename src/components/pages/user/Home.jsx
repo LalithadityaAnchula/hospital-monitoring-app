@@ -1,124 +1,170 @@
-//React Hooks
-import { useState, useContext, useEffect, useRef } from "react";
-
+//components
+import Alert from "../../shared/Alert";
+import FloatUp from "../../shared/FloatUp";
 //contexts
 import UserContext from "../../../context/users/UserContext";
 import AlertContext from "../../../context/alert/AlertContext";
+//actions
+import { createRecord } from "../../../context/users/UserAction";
+//react icons
+import { MdDriveFileRenameOutline } from "react-icons/md";
+//react hooks
+import { useState, useContext } from "react";
 
-//Actions
-import { getAll } from "../../../context/users/UserAction";
-
-//Components
-import AvailableCities from "../../shared/AvailableCities";
-import AvailableCamps from "../../shared/AvailableCamps";
-
-//React icons
-import { FiSearch } from "react-icons/fi";
-import Loader from "../../shared/Loader";
-import Alert from "../../shared/Alert";
-
-export default function Home() {
+export default function Register() {
   const { isLoading, dispatch } = useContext(UserContext);
   const { setAlert } = useContext(AlertContext);
-  const [searchTarget, setSearchTarget] = useState("");
-  const prevSearchTarget = useRef("");
-  const [citySearchResults, setCitySearchResults] = useState([]);
-  const [campsSearchResults, setCampSearchResults] = useState([]);
-  const [isSearchResulstNone, setIsSearchResultsNone] = useState(false);
-  const isSearchTargetValid = /^[a-zA-Z]+$/.test(searchTarget);
+  const [heartRate, setHeartRate] = useState("");
+  const [pulse, setPulse] = useState("");
+  const [bp, setBP] = useState("");
+  const [saturation, setSaturation] = useState("");
 
-  useEffect(() => {
-    if (
-      (isSearchTargetValid &&
-        searchTarget.length >= 3 &&
-        !isSearchResulstNone) ||
-      searchTarget === ""
-    ) {
-      dispatch({ type: "SET_LOADING" });
-      const fetchResults = async () => {
-        const response = await getAll(searchTarget);
-        if (response.success) {
-          setCitySearchResults(response.data.cities.data);
-          setCampSearchResults(response.data.camps.data);
-          const noResults =
-            response.data.cities.data.length === 0 &&
-            response.data.camps.data.length === 0;
-
-          prevSearchTarget.current = noResults ? searchTarget : "";
-
-          setIsSearchResultsNone(
-            noResults
-              ? searchTarget.startsWith(prevSearchTarget.current)
-              : false
-          );
-
-          dispatch({ type: "GET_CITIES", payload: response.data.cities.data });
-          dispatch({ type: "GET_CAMPS", payload: response.data.camps.data });
-        } else {
-          setAlert(response.msg, "danger");
-        }
-      };
-      fetchResults();
-    } else if (isSearchResulstNone) {
-      setIsSearchResultsNone(searchTarget.startsWith(prevSearchTarget.current));
+  const clearFields = () => {
+    setHeartRate("");
+    setPulse("");
+    setBP("");
+    setSaturation("");
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    dispatch({ type: "SET_LOADING" });
+    const response = await createRecord(heartRate, pulse, bp, saturation);
+    if (response.success) {
+      dispatch({ type: "CREATE_RECORD", payload: response.data });
+      setAlert("Successfully submitted", "success");
+      clearFields();
+    } else {
+      dispatch({ type: "UNSET_LOADING" });
+      setAlert(response.msg, "danger");
     }
-  }, [
-    dispatch,
-    searchTarget,
-    isSearchTargetValid,
-    setAlert,
-    isSearchResulstNone,
-  ]);
+  };
+
+  const isDataFilled = () => {
+    console.log(heartRate);
+    return heartRate !== "" && pulse !== "" && bp !== "" && saturation !== "";
+  };
 
   return (
-    <>
-      <main className="section">
-        <div className="my-6 columns">
-          <div className="column is-half">
-            <div className="field">
-              <div
-                className={`control is-large has-icons-left ${
-                  isLoading && "is-loading"
-                }`}
-              >
-                <input
-                  type="text"
-                  className={`input is-medium is-rounded ${
-                    !isSearchTargetValid && searchTarget && "is-danger"
-                  }`}
-                  value={searchTarget}
-                  onChange={(e) => setSearchTarget(e.target.value)}
-                />
-                <div className="fix-height-16 help is-danger has-text-centered">
-                  {!isSearchTargetValid &&
-                    searchTarget !== "" &&
-                    "Invalid search target"}
-                  <Alert />
-                </div>
-                <span className="icon is-large is-left">
-                  <FiSearch color="blue" />
-                </span>
+    <FloatUp>
+      <form
+        onSubmit={handleSubmit}
+        className="is-flex is-flex-direction-column is-justify-content-center is-flex-wrap-wrap is-align-content-center"
+      >
+        <section className="container my-6 py-6">
+          <div className="columns is-multiline">
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="firstName">
+                  Heart Rate
+                </label>
+                <p className="control has-icons-left has-icons-right">
+                  <input
+                    className="input is-medium"
+                    type="number"
+                    name="heartRate"
+                    placeholder="Heart Rate"
+                    value={heartRate}
+                    onChange={(e) => {
+                      setHeartRate(e.target.value);
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <MdDriveFileRenameOutline />
+                  </span>
+                  <span className="icon is-small is-right"></span>
+                </p>
+              </div>
+            </div>
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="lastName">
+                  Pulse Rate
+                </label>
+                <p className="control has-icons-left has-icons-right">
+                  <input
+                    className="input is-medium"
+                    type="number"
+                    name="pulseRate"
+                    placeholder="Pulse Rate"
+                    value={pulse}
+                    onChange={(e) => {
+                      setPulse(e.target.value);
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <MdDriveFileRenameOutline />
+                  </span>
+                  <span className="icon is-small is-right"></span>
+                </p>
+              </div>
+            </div>
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="lastName">
+                  Blood Pressure
+                </label>
+                <p className="control has-icons-left has-icons-right">
+                  <input
+                    className="input is-medium"
+                    type="number"
+                    name="bp"
+                    placeholder="Blood Pressure"
+                    value={bp}
+                    onChange={(e) => {
+                      setBP(e.target.value);
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <MdDriveFileRenameOutline />
+                  </span>
+                  <span className="icon is-small is-right"></span>
+                </p>
+              </div>
+            </div>
+            <div className="column is-half">
+              <div className="field">
+                <label className="label" htmlFor="lastName">
+                  Saturation
+                </label>
+                <p className="control has-icons-left has-icons-right">
+                  <input
+                    className="input is-medium"
+                    type="number"
+                    name="saturation"
+                    placeholder="Saturation"
+                    value={saturation}
+                    onChange={(e) => {
+                      setSaturation(e.target.value);
+                    }}
+                  />
+                  <span className="icon is-small is-left">
+                    <MdDriveFileRenameOutline />
+                  </span>
+                  <span className="icon is-small is-right"></span>
+                </p>
               </div>
             </div>
           </div>
-        </div>
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <>
-            {searchTarget !== "" && citySearchResults.length > 0 && (
-              <h2 className="mx-4 my-5 title is-4 has-text-grey">Cities</h2>
-            )}
-            <AvailableCities role="user" />
-            {searchTarget !== "" && campsSearchResults.length > 0 && (
-              <>
-                <h2 className="mx-4 my-5 title is-4 has-text-grey">Camps</h2>
-                <AvailableCamps role="user" />
-              </>
-            )}
-          </>
-        )}
-      </main>
-    </>
+          <div className="field level">
+            <p className="control level-item">
+              {isDataFilled() ? (
+                <button
+                  className={`button is-success is-medium ${
+                    isLoading && "is-loading"
+                  }`}
+                >
+                  Submit
+                </button>
+              ) : (
+                <button className={"button is-success is-medium"} disabled>
+                  Submit
+                </button>
+              )}
+            </p>
+          </div>
+          <Alert />
+        </section>
+      </form>
+    </FloatUp>
   );
 }

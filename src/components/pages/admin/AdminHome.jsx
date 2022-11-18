@@ -1,6 +1,4 @@
 //Components
-import AvailableCities from "../../shared/AvailableCities";
-import AvailableCamps from "../../shared/AvailableCamps";
 import FloatDown from "../../shared/FloatDown";
 import Loader from "../../shared/Loader";
 import Alert from "../../shared/Alert";
@@ -8,23 +6,22 @@ import Alert from "../../shared/Alert";
 import UserContext from "../../../context/users/UserContext";
 import AlertContext from "../../../context/alert/AlertContext";
 //Actions
-import { getAll } from "../../../context/users/UserAction";
-import { createCity } from "../../../context/users/AdminAction";
+import { getPatinetRecords } from "../../../context/users/AdminAction";
+import { getHealthRecords } from "../../../context/users/UserAction";
 //React icons
 import { FiSearch } from "react-icons/fi";
-import { MdLocationCity } from "react-icons/md";
 //React Hooks
 import { useState, useContext, useEffect, useRef } from "react";
+//Components
+import AvailableRecords from "../../shared/AvailableRecords";
 
 export default function AdminHome() {
   const { isLoading, dispatch } = useContext(UserContext);
   const { setAlert } = useContext(AlertContext);
   const [searchTarget, setSearchTarget] = useState("");
   const prevSearchTarget = useRef("");
-  const [citySearchResults, setCitySearchResults] = useState([]);
-  const [campsSearchResults, setCampSearchResults] = useState([]);
+  const [recordSearchResults, setRecordSearchResults] = useState([]);
   const [isSearchResulstNone, setIsSearchResultsNone] = useState(false);
-  const [isMetroPolitan, setIsMetroPolitan] = useState(false);
   const isSearchTargetValid = /^[a-zA-Z]+$/.test(searchTarget);
 
   useEffect(() => {
@@ -36,26 +33,46 @@ export default function AdminHome() {
     ) {
       dispatch({ type: "SET_LOADING" });
       const fetchResults = async () => {
-        const response = await getAll(searchTarget);
+        const response = await getPatinetRecords(searchTarget);
         if (response.success) {
-          setCitySearchResults(response.data.cities.data);
-          setCampSearchResults(response.data.camps.data);
-          const noResults =
-            response.data.cities.data.length === 0 &&
-            response.data.camps.data.length === 0;
-
+          setRecordSearchResults(response.data);
+          const noResults = response.data.length === 0;
           prevSearchTarget.current = noResults ? searchTarget : "";
-
           setIsSearchResultsNone(
             noResults
               ? searchTarget.startsWith(prevSearchTarget.current)
               : false
           );
-
-          dispatch({ type: "GET_CITIES", payload: response.data.cities.data });
-          dispatch({ type: "GET_CAMPS", payload: response.data.camps.data });
+          dispatch({
+            type: "GET_RECORDS",
+            payload: response.data,
+          });
         } else {
           setAlert(response.msg, "danger");
+          dispatch("UNSET_LOADING");
+        }
+      };
+      fetchResults();
+    } else if (searchTarget === "") {
+      dispatch({ type: "SET_LOADING" });
+      const fetchResults = async () => {
+        const response = await getHealthRecords(searchTarget);
+        if (response.success) {
+          setRecordSearchResults(response.data);
+          const noResults = response.data.length === 0;
+          prevSearchTarget.current = noResults ? searchTarget : "";
+          setIsSearchResultsNone(
+            noResults
+              ? searchTarget.startsWith(prevSearchTarget.current)
+              : false
+          );
+          dispatch({
+            type: "GET_RECORDS",
+            payload: response.data,
+          });
+        } else {
+          setAlert(response.msg, "danger");
+          dispatch("UNSET_LOADING");
         }
       };
       fetchResults();
@@ -69,22 +86,6 @@ export default function AdminHome() {
     setAlert,
     isSearchResulstNone,
   ]);
-
-  const handleClick = async (e) => {
-    e.preventDefault();
-    dispatch({ type: "SET_LOADING" });
-    const response = await createCity({
-      name: searchTarget,
-      isMetroPolitan,
-    });
-    if (response.success) {
-      dispatch({ type: "ADD_CITY", payload: response.data });
-    } else {
-      dispatch({ type: "UNSET_LOADING" });
-      setAlert(response.msg, "danger");
-    }
-    setSearchTarget("");
-  };
 
   return (
     <>
@@ -120,57 +121,17 @@ export default function AdminHome() {
             </FloatDown>
           </div>
         </div>
-        {citySearchResults.length === 0 &&
-          searchTarget !== "" &&
-          isSearchTargetValid && (
-            <>
-              <h2 className="subtitle has-text-primary has-text-centered">
-                No "{searchTarget}" city, add it ?
-              </h2>
-              <div className="is-flex is-justify-content-center is-flex-wrap-wrap is-align-content-center">
-                <div className="field has-addons">
-                  <div className="control has-icons-left">
-                    <div className="select">
-                      <select
-                        name="cityType"
-                        className="select"
-                        value={isMetroPolitan}
-                        onChange={(e) => setIsMetroPolitan(e.target.value)}
-                      >
-                        <option value={false}>Non Metropolitan</option>
-                        <option value={true}>Metropolitan</option>
-                      </select>
-                    </div>
-                    <span className="icon is-small is-left">
-                      <MdLocationCity />
-                    </span>
-                  </div>
-                  <div className="control">
-                    <button
-                      onClick={handleClick}
-                      className="button is-success is-outlined"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
         {isLoading ? (
           <Loader />
         ) : (
           <>
-            {searchTarget !== "" && citySearchResults.length > 0 && (
-              <h2 className="mx-4 my-5 title is-4 has-text-grey">Cities</h2>
+            {searchTarget !== "" && recordSearchResults.length > 0 && (
+              <h2 className="mx-4 my-5 title is-4 has-text-grey">
+                Matched Patient Records
+              </h2>
             )}
-            <AvailableCities role="admin" />
-            {searchTarget !== "" && campsSearchResults.length > 0 && (
-              <>
-                <h2 className="mx-4 my-5 title is-4 has-text-grey">Camps</h2>
-                <AvailableCamps role="admin" />
-              </>
-            )}
+
+            <AvailableRecords />
           </>
         )}
       </main>

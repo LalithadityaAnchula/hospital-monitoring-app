@@ -7,12 +7,8 @@ export const AppProvider = ({ children }) => {
   const initialState = {
     isLoading: false,
     user: {},
-    cities: [],
-    camps: [],
-    slots: [],
-    requests: [],
     sessions: [],
-    stats: {},
+    records: [],
   };
 
   const [state, dispatch] = useReducer(Reducer, initialState);

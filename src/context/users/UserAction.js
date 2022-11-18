@@ -91,93 +91,27 @@ export const updateUser = async (firstName, lastName, email, phone, aadhar) => {
   }
 };
 
-//getting all search results for camps and cities
-export const getAll = async (searchTarget) => {
+//Creating health record
+export const createRecord = async (heartRate, pulse, bp, saturation) => {
   try {
-    const citiesResponse = await axiosInstance.get(
-      `/all/cities?sort=name&search=${searchTarget}`
-    );
-    const campsResponse = await axiosInstance.get(
-      `/all/camps?sort=name&search=${searchTarget}`
-    );
-    return {
-      success: true,
-      data: { cities: citiesResponse.data, camps: campsResponse.data },
-      role: campsResponse.data.role,
-    };
+    const res = await axiosInstance.post("/records", {
+      heartRate: heartRate,
+      pulse: pulse,
+      bp: bp,
+      saturation: saturation,
+    });
+    return res.data;
   } catch (err) {
     console.log(err.response);
     return err.response.data;
   }
 };
 
-//getting cities
-export const getCities = async (searchTarget) => {
+//getting records
+export const getHealthRecords = async (searchTarget) => {
   try {
     const res = await axiosInstance.get(
-      `/cities?sort=name&search=${searchTarget}`
-    );
-    return res.data;
-  } catch (err) {
-    console.log(err.response);
-    return err.response.data;
-  }
-};
-
-//getting city
-export const getCity = async (id) => {
-  try {
-    const res = await axiosInstance.get(`/cities/${id}`);
-    return res.data;
-  } catch (err) {
-    console.log(err.response);
-    return err.response.data;
-  }
-};
-
-//getting all the camps in a city
-export const getCamps = async (searchTarget, cityId) => {
-  try {
-    const res = await axiosInstance.get(
-      `/cities/${cityId}/camps?sort=name&search=${searchTarget}`
-    );
-    return res.data;
-  } catch (err) {
-    console.log(err.response);
-    return err.response.data;
-  }
-};
-
-//getting one camp
-export const getCamp = async (cityId, campId) => {
-  try {
-    const res = await axiosInstance.get(`/cities/${cityId}/camps/${campId}`);
-    return res.data;
-  } catch (err) {
-    console.log(err.response);
-    return err.response.data;
-  }
-};
-
-//getting all slots in the camp
-export const getSlots = async (cityId, campId) => {
-  try {
-    const res = await axiosInstance.get(
-      `/cities/${cityId}/camps/${campId}/slots`
-    );
-    return res.data;
-  } catch (err) {
-    console.log(err.response);
-    return err.response.data;
-  }
-};
-
-//Booking slot
-export const bookSlot = async (cityId, campId, slotId, userId) => {
-  try {
-    const res = await axiosInstance.put(
-      `/cities/${cityId}/camps/${campId}/slots/${slotId}/book`,
-      { userId }
+      `/records?sort=name&search=${searchTarget}`
     );
     return res.data;
   } catch (err) {

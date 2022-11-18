@@ -5,7 +5,7 @@ export default function Alert() {
   const { alert } = useContext(AlertContext);
   return (
     <div
-      className="fix-height-alert help is-danger has-text-centered my-2"
+      className="fix-height-alert help is-info has-text-centered my-2"
       style={{ visibility: alert ? "visible" : "visible" }}
     >
       {alert?.message}

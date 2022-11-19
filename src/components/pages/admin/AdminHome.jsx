@@ -8,12 +8,12 @@ import AlertContext from "../../../context/alert/AlertContext";
 //Actions
 import { getPatinetRecords } from "../../../context/users/AdminAction";
 import { getHealthRecords } from "../../../context/users/UserAction";
-//React icons
-import { FiSearch } from "react-icons/fi";
 //React Hooks
 import { useState, useContext, useEffect, useRef } from "react";
 //Components
 import AvailableRecords from "../../shared/AvailableRecords";
+//React icons
+import { FiSearch } from "react-icons/fi";
 
 export default function AdminHome() {
   const { isLoading, dispatch } = useContext(UserContext);
